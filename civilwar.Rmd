@@ -1,0 +1,443 @@
+---
+title: "Final Project on Civil War"
+author: "Vahid Moftakhari"
+output:
+  bookdown::pdf_document2: default
+urlcolor: blue
+bibliography: references.bib
+csl: american-political-science-association.csl
+---
+\newpage
+
+# Abstract
+
+Does colonial past increase the likelihood of civil war? In this research, we aim to discover the relationship between being colonized and the likelihood of going into a civil war. We are using the dataset from Fearon and Latin [@fearon2003ethnicity]. We will investigate whether countries with a colonial past have a higher likelihood of going into a civil war. We expect that countries that were colonized are more likely to go into a civil war. 
+
+# Introduction
+
+The bureaucratic design and the ruling style of the colonial power had an inevitable influence on the political and social institutions of the post-colonial countries. The preferences of colonial regimes had profounding effects on the future of these countries. This has created institutional differences between countries that were never colonized and countries that were colonized. Many of these newly independent countries have based their political system on the rule of the colonial regime. Thus, countries that were colonized by the French adopted substantially different institutions than those that were colonized by the British. 
+
+We investigate whether the likelihood of going to a civil war is affected by the binary variable of whether the country was colonized or not. We argue that the colonial past is positively correlated with the likelihood of a civil war. Then, we check whether institutional design of different colonial powers had an impact on the likelihood of a civil war. We have selected the two powers with the most number of colonies, France and Britain. We argue that being colonized by France increases the likelihood of going into a civil war.
+
+# Literature and Theory
+
+As Fearon and Laitin’s study portrays, those countries which are likely to have a civil war are not the ones that have higher degrees of ethnic, religious or language fractionalization but rather the countries which have conditions that favor insurgency [@fearon2003ethnicity]. Henderson and Singer [@henderson2000civil] argue that political factors have the greatest role in the incidence of civil wars among  post-colonial countries. Based on the outcomes of Fearon & Laitin and Henderson & Singer studies, we will be deploying an institutional approach by claiming that countries which have a colonial history are more prone to civil wars because of their financially and bureaucratically weak state capabilities [@djankov2007colonial]. Additionally, borders of the colonies were drawn without taking ethnic boundaries into account. This causes post-colonial countries to be ethnically more fractualized [@blanton2001colonial]. 
+
+For the second hypothesis, the prevailing argument in the literature that British and French colonies differ from each other regarding institutional quality [@fieldhouse1991french] which affects the country’s economic, social, and political capabilities after independence provides the base for our sub-hypothesis. The French system was based on assimilating and transforming the colonial subjects through a centralized rule [@clapham1985third]. Whereas the British rule relied much more on local elites, generally tolerating local traditions and power relations [@winstedt1938malaysia]. 
+
+Blanton [@blanton2001colonial] et al provide a counter argument to our sub hypothesis. They argue that countries in Africa that were colonized by Britain are more prone to ethnic strife. They formulate their argument on different styles of colonial rule between Britain and France. French colonial rule was defined by a centralized and ranked system, which suppressed ethnic mobilization attempts. On the other hand, British colonial rule was much more decentralized and it was an unranked system. Thus, it caused competition among ethnic groups, which eventually led to civil wars. They also argue that the British rule left traditional institutions relatively untouched, unlike the centralized French rule. Traditional social institutions often feed ethnic mobilization, causing greater ethnic strife. 
+
+# Research Design and Data
+
+The explanatory variable of interest is whether the country was colonized before or not. The outcome variable is whether the country has witnessed a civil war or not. The outcome variable would mean that the country has witnessed at least one civil war or has not witnessed any civil wars. As control variables, we will be using GDP/per capita levels, economic and social fractionalization and geographical conditions to check the accuracy of our claims. 
+
+We have two hypotheses. The first one is "If a country was colonized, it is more likely to go into a civil war than a country which was not colonized". We exclude anti-colonial wars from the analysis and focus on the occurrence of civil war after independence. Second hypothesis is "Countries that were colonized by France are more prone to civil wars than countries that were colonized by Britain". Here, our explanatory variable is whether the country was colonized by the UK or France. "colfra =1" would mean that the country was colonized by France and "colbrit=1" would mean that the country was colonized by Britain. Our outcome variable is again whether the country has witnessed a civil war. 
+
+For the first hypothesis, if we observe that the number of colonized countries is higher than not colonized countries among countries that witnessed a civil war, this will provide support for our argument. If their numbers are similar or if the number of not colonized countries are higher, that would provide a negation for our argument. For the second hypothesis, if we observe that the number of countries that were colonized by Britain who have witnessed civil wars is lower than countries that were colonized by France, that will support our argument. If the numbers are equal or if they are reversed, that would negate our argument. 
+\newpage
+# Hypothesis I: 
+
+First Hypothesis: If a country was colonized, it is more likely to go into a civil war than a country which was not colonized. 
+The main body of literature in this field claim that civil wars either have roots in the ethnic heterogeneity of a country or in its economic prosperity or in the political development of a country. However, we think that having a colonial history might be the confounding variable ignored by all of these studies.
+
+In order to test our hypothesis we will examine the relationship between the likelihood of the civil war in a country, as the outcome or dependent variable, with colonial history, as the independent or explanatory variable. Likelihood of civil war is a continuous variable showing the mean of the years that a country has had a civil war during 1945-1999. While colonial history is a dummy variable showing whether a country were colonized before or not. Other control variables taken into account in our model are Ethnic Fractionalization, GDP per Population, Democratization and Share of the largest Ethnic Group. Ethnic Fractionalization is a continuous variable ranging from 0 to 1 and refers to the extent to which a country is ethnically homogeneous. So, the more the index of ethnic fractionalization for a country, the more it is ethnically heterogeneous. Democratization index is another continuous variable ranging from -10 to 10. -10 means that a country is highly undemocratic, while 10 refers to the highest degree of democratization. Share of the largest ethnic group is a continuous number between 0 and 1 showing the share of the largest ethnic group in the population of a given country.
+
+#civil war likelihood
+```{r echo = FALSE}
+civilwar = read.csv("civilwar.csv")
+
+options(scipen = 100)
+
+country_names = unique(civilwar$country)
+
+civil_war_likelihood = rep(NA, 161)
+names(civil_war_likelihood) = country_names
+
+###one_country = subset(civilwar, subset = (country == country_names[1]))
+###civil_war_likelihood = mean(one_country$war)
+
+for(i in 1:161){
+  
+one_country = subset(civilwar, subset = (country == country_names[i]))
+
+civil_war_likelihood[i] = mean (one_country$war)
+}
+
+
+
+```
+ 
+
+#colonial history
+```{r echo = FALSE}
+civil_war = civilwar[!duplicated(civilwar$country),]
+civil_war$col_count = ifelse((civil_war$colbrit == 1) | (civil_war$colfra == 1), 1, 0)
+civil_war$likelihood = civil_war_likelihood
+
+civil_war_col = tapply(civil_war$likelihood, civil_war$col_count,mean)
+civil_war_col = round(civil_war_col,4)
+
+par(xpd = TRUE, mar=c(5, 5, 5, 10))
+lbls = c("non colonized country", "colonized country")
+pct <- round(civil_war_col/sum(civil_war_col)*100)
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+pie(civil_war_col,labels = lbls, col=rainbow(length(lbls)),
+   main="civil war likelihood",
+   cex.main = 0.9)
+
+
+```
+
+Among all of the countries that have witnessed a civil war between 1945 and 1999, 51% has had a colonial history and 49% has not. This proportion cannot prove any strong association between being a colonized country and witnessing civil war. However, if we take into account other control variables, we might have a relatively strong association between our dependent and independent variables. To do so, we will start to assess the relationship between likelihood of civil war and other control variables to check whether there is a significant relationship between them or not, and then, we will add countries' colonial history to the final model. 
+
+
+#plot:ethnic fractionalization
+```{r echo = FALSE}
+
+
+civil_war$col_count = ifelse((civil_war$colbrit == 1) | (civil_war$colfra == 1), 1, 0)
+###col_count is a dummy variable showing whether a country has had a colonial history or not! 
+
+civil_war$color[civil_war$col_count == 1] = "indian red"
+civil_war$color[civil_war$col_count == 0] = "steelblue"
+
+par(xpd = TRUE, mar=c(5, 5, 5, 10))
+plot(civil_war$ef,civil_war$likelihood,
+     xlim = c(0,1),
+     ylim = c(0,1),
+     main = "the impact of Ethnic Fractionalization on Civil War",
+     xlab = "Ethnic Fractionalization",
+     ylab= "the likelihood of Civil War",
+     col = civil_war$color,
+     las =1,
+     pch = 20,
+     cex.main = 0.8,
+     cex.lab = 0.8)
+legend(1.05,0.9, legend = c("colonized", "non colonized"), fill = c("indian red","steelblue"), cex = 0.7)
+
+
+###correlation between Ethnic fractualization and civil war
+cor(civil_war$likelihood,civil_war$ef, use="pairwise")
+
+##regression Ethnic fractualization on civil war
+fit1 = lm(likelihood ~ ef, data = civil_war)
+fit1
+summary(fit1)
+
+##add regression line from fit 1
+clip(0,1,0,1)
+abline(fit1, col = "darkgreen", lw = 2)
+
+```
+ According to the model, there is positive association between ethnic fractionalization and civil war. More accurately, for each unit increase in the ethnic fractionalization, the likelihood of the civil war will increase by 18 percent. 
+
+
+
+#colonial history and ethnic fractionalization
+```{r echo = FALSE}
+civil_war$col_count = ifelse((civil_war$colbrit == 1) | (civil_war$colfra == 1), 1, 0)
+
+mean_civil_war = tapply(civil_war$likelihood, civil_war$col_count, mean)
+mean_ethnic_fra = tapply(civil_war$ef, civil_war$col_count, mean, na.rm = T)
+
+balance_tab <- rbind("civil war likelihood" = mean_civil_war, "ethnic fractionalization" = mean_ethnic_fra)
+knitr::kable(balance_tab, col.names=c("non-colonized country", "colonized country"))
+
+
+
+```
+This table indicates that the mean of the civil war likelihood for the colonized countries is slightly higher than the mean of the civil war likelihood for the non-colonized countries. However, what is more interesting is that the index of fractionalization for the colonized countries is significantly higher than that of non-colonized countries. So, it seems that having a colonized history will both increase the likelihood of civil war and ethnic fractionalization. This is especially important for our hypothesis because if having a colonial history and ethnic fractionalization goes hand in hand, maybe colonial history is the confounding variable.
+
+#gdp per population
+```{r echo = FALSE}
+gdp_pop = rep(NA, 161)
+names(gdp_pop) = country_names
+
+for(i in 1:161){
+  
+one_country = subset(civilwar, subset = (country == country_names[i]))
+
+gdp_pop[i] = mean (one_country$gdpen, na.rm = T)
+}
+
+```
+
+
+#plot:gdp per population
+```{r echo = FALSE}
+civil_war$gdp_pop = gdp_pop
+
+par(xpd = TRUE, mar=c(5, 5, 5, 10))
+plot(civil_war$gdp_pop,civil_war$likelihood, 
+     ylim = c(0,1),
+     main = "the impact of GDP on Civil War",
+     xlab = "GDP",
+     ylab= "the likelihood of Civil War",
+     col = civil_war$color,
+     las =1,
+     cex.main = 0.8,
+     cex.lab = 0.8)
+legend(32,0.9, legend = c("colonized", "non colonized"), fill = c("indian red","steelblue"), cex = 0.7)
+
+##regression gdp per population on civil war
+fit2 = lm(likelihood ~ gdp_pop, data = civil_war)
+fit2
+
+clip(-0.9,30,0,1)
+abline(fit2, col = "darkgreen", lw = 2, lty = 1)
+
+
+```
+
+Based on the plot, we can observe a negative association between GDP per population and the likelihood of civil war. It means the for each unit increase in the GDP per capita the likelihood of the civil war will decrease 1.7 percent.
+
+
+###colonial history and GDP
+```{r echo = FALSE}
+mean_gdp = tapply(civil_war$gdp_pop, civil_war$col_count, mean, na.rm = T)
+balance_tab1 <- rbind("civil war likelihood" = mean_civil_war, "GDP per capita" = mean_gdp)
+knitr::kable(balance_tab1, col.names=c("non-colonized country", "colonized country"), caption = "GDP by colonized history")
+
+```
+This table indicates that countries with a colonial history are more likely to have a lower GDP per population compared to non-colonized countries because if there is a association between likelihood of civil war and GDP and if there is an association between GDP and having a colonial history, then maybe colonial history can better explain the likelihood of civil war.
+
+#democratization
+```{r echo = FALSE}
+demo_ind = rep(NA, 161)
+names(demo_ind) = country_names
+
+for(i in 1:161){
+  
+one_country = subset(civilwar, subset = (country == country_names[i]))
+
+demo_ind[i] = mean (one_country$polity2, na.rm = T)
+}
+
+
+```
+
+#plot: democratization
+```{r echo = FALSE}
+civil_war$demo_ind = demo_ind 
+
+par(xpd = TRUE, mar=c(5, 5, 5, 10))
+plot(civil_war$demo_ind ,civil_war$likelihood,
+     xlim = c(-10,10),
+     ylim = c(0,1),
+     main = "impact of Democratization on Civil War",
+     xlab = "Democatization",
+     ylab= "likelihood of Civil War",
+     col = civil_war$color,
+     las =1,
+     cex.main = 0.9, 
+     cex.lab = 0.9,
+     pch = 20)
+legend(11,0.9, legend = c("colonized", "non colonized"), fill = c("indian red","steelblue"), cex = 0.7)
+
+###regression GDP on civil war
+
+fit3 = lm(likelihood ~ demo_ind , data = civil_war)
+fit3
+
+clip(-10.8,10.8,0,1)
+abline(fit3, col = "darkgreen", lw = 2)
+```
+
+According to the plot, the more a country is democratic, the less the likelihood of having civil war. according to the regression model for each unit increase in democratic index, the likelihood of civil war will decrease 0.3 percent. 
+
+
+#colonial history and Democratization
+```{r echo = FALSE}
+mean_demo = tapply(civil_war$demo_ind, civil_war$col_count, mean, na.rm = T)
+balance_tab2 <- rbind("civil war likelihood" = mean_civil_war, "Democratization" = mean_demo)
+knitr::kable(balance_tab2, col.names=c("non-colonized country", "colonized country"), caption = "Democratization by colonized history")
+
+```
+Countries with a colonial history significantly have lesser democratic index. The mean of the democratic index for the colonized countries is -1.61 while the mean of the democratic index for the non-colonized countries is 0.42. So, the non-colonized countries averagely are 2 point higher than colonized countries in terms of their democratization index. 
+
+#share of the largest ethnic group
+```{r echo = FALSE}
+share = rep(NA, 161)
+names(share) = country_names
+
+for(i in 1:161){
+  
+one_country = subset(civilwar, subset = (country == country_names[i]))
+
+share[i] = mean (one_country$plural, na.rm = T)
+}
+
+```
+
+
+#plot: share of the largest ethnic group
+```{r echo = FALSE}
+civil_war$share = share
+
+par(xpd = TRUE, mar=c(5, 5, 5, 10))
+plot(civil_war$plural ,civil_war$likelihood,
+     xlim = c(0,1),
+     ylim = c(0,1),
+     main = "impact of largest Ethnic Group on Civil War",
+     xlab = "share of the largest ethnic group",
+     ylab= "likelihood of Civil War",
+     col = civil_war$color,
+     las =1,
+     cex.main = 0.9, 
+     cex.lab = 0.9,
+     pch = 20)
+legend(1.05,0.9, legend = c("colonized", "non colonized"), fill = c("indian red","steelblue"), cex = 0.7)
+###regression GDP on civil war
+
+fit4 = lm(likelihood ~ plural , data = civil_war)
+fit4
+
+clip(-0.04,1.04,0,1)
+abline(fit4, col = "darkgreen", lw = 3)
+```
+There is a negative relationship between the share of the largest ethnic group and the likelihood of the civil war which means, according to regression model, for each unit increase in the share of the largest ethnic group the likelihood of the civil war will decrease 16 percent. 
+
+#colonial history and the share of the largest ethnic group
+```{r echo = FALSE}
+mean_share = tapply(civil_war$share, civil_war$col_count, mean, na.rm = T)
+balance_tab3<- rbind("civil war likelihood" = mean_civil_war, "share of the largest ethnic group" = mean_share)
+knitr::kable(balance_tab3, col.names=c("non-colonized country", "colonized country"), caption = "share of the largest ethnic group and colonial history")
+```
+
+
+
+
+
+
+
+\newpage
+###final model
+
+```{r echo = FALSE}
+final_fit = lm(likelihood ~ gdp_pop+demo_ind+ef+share+col_count, data = civil_war)
+final_fit
+
+summary(final_fit)
+
+summary(final_fit)$r.squared
+```
+
+
+```{r, results='asis', echo = FALSE}
+stargazer::stargazer(final_fit,
+       title = "Civil war likelihood and colonial history",
+               intercept.top = T, intercept.bottom = F,
+                     covariate.labels = c("Intercept", "GDP per population", "Democratization index", "Ethnic fractionalization", "Share of the largest ethnic group", "Colonized history"), 
+                    dep.var.labels = c("Civil war likelihood"),
+                     header = FALSE, type = "latex")
+```
+
+According to our final model there is a negative association between having a colonial history and the likelihood of the civil war. Which means, keeping constant other control variables, for each unit increase in the colonial history the likelihood of civil war will decrease for two percent. However, except GDP, all the other coefficients are statistically insignificant. It means that based on their P values we can not claim that they can explain our dependent variable. coefficient of GDP per population is 0.015 which means that, keeping all the other variables constant, each unit increase in GDP per population would decrease the likelihood of civil war for 14% (intercept + gdp_p). So, as the alpha for our GDP coefficient is 0.01, we can claim that there is only 1% chance to get more extreme coefficients than our regression coefficient for GDP. Thus, with 99% probability we can claim that each unit increase in GDP will decrease the likelihood of civil war for 1.5%. 
+Based on these findings, we can not claim that having a colonial history would increase the likelihood of civil war. Our Null hypothesis neither can  be proved nor rejected because we could not get a statistically significant coefficient for colonial history. It means that neither can we claim for a positive association nor for a negative one. 
+
+The R square of our model is 7 percent which means our independent variables i.e., having a colonial history alongside GDP, ethnic fractionalization, share of the largest ethnic group and democratization can explain 7 percents of the variances of our dependent variable which is the likelihood of the civil war. 
+
+Even though we could not prove our hypothesis, there is still one confounding factor whose inclusion in our model might have some impact on coefficients. According to the table below, it seems that there might be a relationship between different geographical regions and likelihood of civil war. For example, while the likelihood of civil war for Asia is 0.3, for Eastern Europe it is 0.09. So, to test the impact of geography on our model we will revise our model. 
+\newpage
+#geography
+
+```{r echo = FALSE}
+civil_war$region = rep(NA,161)
+civil_war$region[civil_war$western == 1] = "Western"
+civil_war$region[civil_war$eeurop == 1] = "Eastern Eu"
+civil_war$region[civil_war$lamerica == 1] = "latin Am"
+civil_war$region[civil_war$ssafrica == 1] = "SS Africa"
+civil_war$region[civil_war$asia == 1] = "Asia"
+civil_war$region[civil_war$nafrme == 1] = "MENA"
+
+civil_war$region = as.character(civil_war$region)
+
+mean_likelihood_region = tapply(civil_war$likelihood,civil_war$region,mean)
+
+col_count_region = tapply(civil_war$col_count,civil_war$region,sum)
+
+balance_tab4<- round(rbind("likelihood of civil war" = mean_likelihood_region , "number of colonized countires" = col_count_region),3)
+knitr::kable(balance_tab4,col.names=c("Asia", "Eastern Eu", "Latin Am", "MENA", "SS Africa", "Western"))
+
+
+```
+
+
+```{r echo = FALSE}
+##col_count = subset(civil_war, civil_war$col_count == 1)
+##non_col_count = subset(civil_war, civil_war$col_count == 0)
+
+##mean_likelihood_region1 = tapply(col_count$likelihood,col_count$region,mean)
+##mean_likelihood_region2 = tapply(non_col_count$likelihood,non_col_count$region,mean)
+                          
+names = c("Asia", "Eastern Eu", "Latin Am", "MENA", "SS Africa", "Western")
+par(xpd = TRUE, mar=c(5, 5, 5,10))
+barplot(mean_likelihood_region,
+     ylim = c(0,0.4),
+     main = "likelihood of civil war in different region",
+     xlab = "Regions",
+     ylab= "likelihood of Civil War",
+     col = c("indianred","steelblue"),
+     las =1,
+     cex.main = 0.9, 
+     cex.lab = 0.9,
+     las = 1,
+     cex.names = 0.7,
+     names.arg = names
+     )
+##barplot(mean_likelihood_region1)
+#legend(1.05,0.9, legend = c("colonized", "non colonized"), fill = c("indian red","steelblue"), cex = 0.7)
+```
+
+
+```{r echo = FALSE}
+par(xpd = TRUE, mar=c(5, 5, 5,8))
+boxplot(civil_war_likelihood ~ civil_war$region,
+        names = names,
+        cex.axis = 0.7,
+        xlab = "Regions",
+     ylab= "likelihood of Civil War",
+     cex.main = 0.8,
+     main = "Likelihood of civil war in different regions"
+     )
+
+```
+
+Distribution of civil war's likelihood is uneven between different regions. So, it seems that geography has a heterogeneous effect on the likelihood of civil war. While the mean of years that countries in Eastern and Western Europe have had a civil war is almost 0, this is much more higher for Asian, Sub Saharan Africa and Middle East and North Africa. The median for Asia's box plot is higher than upper quantile of other regions which makes Asia an exceptional case, needed for more explanation. On the other hand in Eastern Europe where there is no country with colonial history, the likelihood of civil war is almost 0, a fact that strengthen our modified hypothesis that having a colonial history in some regions might have impact on the likelihood of civil war. 
+\newpage
+```{r echo = FALSE}
+
+revised_final_fit = lm(likelihood ~ ef*share+ gdp_pop+col_count+demo_ind+western+lamerica+ssafrica+asia+nafrme, data = civil_war)
+
+summary(revised_final_fit)
+
+
+```
+
+```{r, results='asis', echo = FALSE }
+stargazer::stargazer(revised_final_fit, final_fit,
+       title = "Civil war likelihood and colonial history",
+               intercept.top = T, intercept.bottom = F,
+                     covariate.labels = c("Intercept","Ethnic fractionalization","Share of the largest ethnic group", "GDP per population","Colonial history","Democratization index", "Western", "Latin America","Sub Saharan Africa", "Asia","MENA"), 
+                    dep.var.labels = c("Civil war likelihood"),
+                     header = FALSE, type = "latex")
+```
+
+We added geographical variables to our model and as a result coefficients changed interestingly. In our new model we have 4 statistically significant coefficients. based on these findings we can claim:
+ 1. with 99% probability, each unit increase in GDP per population will end up in a decrease for 18% in the likelihood of civil war. (intercept + gdp_p = 16.4 + 1.6)
+ 2.with 99.9% certainty, for each unit increase in Asia, the likelihood of civil war would increase 0.1 which is 10%.
+ 3.with 95% certainty, for each unit increase in North Africa and Middle East the likelihood of civil war will increase for 0.01 unit. 
+ 4. with 90% certainty, for each unit increase in colonial history, the likelihood of civil war will decrease 0.25 unit. 
+Therefore, it seems that not only our hypothesis is not proved , but also, based on our model, we can claim that there is a negative relationship between having a colonial history and witnessing a civil war. It means that colonized countries are less likely to experience civil war. 
+
+ Besides that, putting two model together, we can see that  r-squared for the revised model is 2 times more than the r-squared of the first model. This is also true about the adjusted r-squared. While in the first model adjusted r-squared was 0.07814 in the revised model 0.1421. It means that our revised model can explain 14% of the variances of our dependent variable(likelihood of civil war). So, we can claim that our second model can 2 times better explain the variances of dependent variable. 
+ 
+ During our research, we were faced with three limitations: first, instead of using time series data which is a series of data points indexed in time order (annual data of civil war in each country), we used a cross-country analysis by defining the likelihood of civil war as the mean of the years of civil war in each country. The second limitation was about the fact that our data set has only two dummy variable for showing whether a country has had a colonial history or not. The first one is about whether a country was colonized by Britain or not and the second one is about whether a country was colonized by France or not. So, basically, we had no access to other variables showing whether a country was colonized by other countries like Spain. This means that, instead of referring to all the countries who had been colonized by another country, no matter what is it, or colonial history variable (col_count) only include the countries who had been colonized by Britain or by France. these limitations alongside confounding variables not taken into account prevent us from claiming a causal effects. However, we can still claim that there is a considerable association between likelihood of civil war and having a colonial history. among the most important confounding variables, we can mention to religious fractionalization, bureaucratic design and the level of institutional development, the share of the natural resources in the GDP of the country. 
+
+
+\newpage
+# Conclusion
+
+In this research, we hypothesized that countries that were colonized have a higher likelihood of witnessing a civil war. We base this hypothesis on the political science literature, that argues that colonized countries have their borders drawn without taking ethnic boundaries into account. Thus, they have much more heterogenous populations which creates potential for ethnic unrests. We used confounding variables like the share of the largest ethnicity and GDP in our research. We found that there is no significant relationship between being colonized and witnessing a civil war. When we added regional dummies into our model, we found a negative relationship between being colonized and witnessing a civil war. So, having a colonial history actually decreases the likelihood of having a civil war. But some of our control variables, like GDP or being placed in Asia or Middle East and North Africa, had a positive relationship with civil war. 
+
